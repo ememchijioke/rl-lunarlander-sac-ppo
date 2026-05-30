@@ -33,3 +33,13 @@ SAC_LOG_DIR = "logs/custom_sac"
 PPO_LOG_DIR = "logs/ppo"
 PLOTS_DIR = "plots"
 VIDEOS_DIR = "videos"
+
+# PPO hyperparameters
+PPO_LEARNING_RATE = 3e-4
+PPO_N_STEPS = 2048
+PPO_BATCH_SIZE = 64
+PPO_N_EPOCHS = 10
+PPO_GAMMA = 0.99
+PPO_GAE_LAMBDA = 0.95
+PPO_CLIP_RANGE = 0.2
+
