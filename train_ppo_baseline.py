@@ -1,5 +1,3 @@
-# train_ppo_baseline.py
-
 import os
 
 from stable_baselines3 import PPO

@@ -7,3 +7,5 @@ stable-baselines3
 moviepy
 opencv-python
 tqdm
+imageio
+imageio-ffmpeg

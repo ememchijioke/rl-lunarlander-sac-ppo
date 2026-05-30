@@ -6,7 +6,7 @@ SEED = 42
 
 # Training
 SAC_TOTAL_STEPS = 300_000
-PPO_TOTAL_STEPS = 300_000
+PPO_TOTAL_STEPS = 1_000_000
 
 # SAC hyperparameters
 GAMMA = 0.99
