@@ -1,0 +1,13 @@
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+models/
+logs/
+videos/
+plots/
+
+*.mp4
+*.csv
+*.zip

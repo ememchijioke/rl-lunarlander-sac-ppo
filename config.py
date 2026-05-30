@@ -1,0 +1,35 @@
+# config.py
+
+ENV_NAME = "LunarLanderContinuous-v3"
+
+SEED = 42
+
+# Training
+SAC_TOTAL_STEPS = 300_000
+PPO_TOTAL_STEPS = 300_000
+
+# SAC hyperparameters
+GAMMA = 0.99
+TAU = 0.005
+ACTOR_LR = 3e-4
+CRITIC_LR = 3e-4
+ALPHA_LR = 3e-4
+BUFFER_SIZE = 1_000_000
+BATCH_SIZE = 256
+HIDDEN_DIM = 256
+START_STEPS = 10_000
+UPDATE_AFTER = 1_000
+UPDATE_EVERY = 1
+TARGET_UPDATE_INTERVAL = 1
+
+# Evaluation
+EVAL_EPISODES = 5
+MAX_EPISODE_STEPS = 1000
+
+# Paths
+SAC_MODEL_DIR = "models/custom_sac"
+PPO_MODEL_DIR = "models/ppo"
+SAC_LOG_DIR = "logs/custom_sac"
+PPO_LOG_DIR = "logs/ppo"
+PLOTS_DIR = "plots"
+VIDEOS_DIR = "videos"

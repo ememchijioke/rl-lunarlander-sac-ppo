@@ -1,0 +1,9 @@
+gymnasium[box2d]
+torch
+numpy
+matplotlib
+pandas
+stable-baselines3
+moviepy
+opencv-python
+tqdm
