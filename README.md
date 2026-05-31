@@ -1,5 +1,6 @@
 #### Academic Coursework
-# RL LunarLander: Custom SAC vs PPO
+
+# RL LunarLander SAC and PPO
 
 This repository is a project that uses deep reinforcement learning for continuous lunar landing control. With a custom Soft Actor-Critic (SAC) agent and a PPO baseline, the lunar lander learns to stabilize its descent and land safely in the LunarLanderContinuous environment.
 
@@ -24,53 +25,46 @@ python train_ppo_baseline.py
 
 # Train custom SAC
 python train_custom_sac.py
-Record videos
 
 # Record PPO
 python record_video.py --algo ppo --episodes 5 --video-folder videos/ppo_1m
 
 # Record custom SAC
 python record_video.py --algo sac --episodes 5 --video-folder videos/sac_1m
-
-Videos are written under videos/.
-
-Plot training curves
-
+# plot training curves
 python plot_results.py
 python compare_results.py
 
-Generated artefacts are written under:
-* plots/ppo_training_curve.png
-* plots/sac_training_curve.png
-* plots/sac_vs_ppo_comparison.png
-* plots/evaluation_summary_table.png
 
-Results
-Both agents were trained for 1,000,000 timesteps.
-### PPO Training Curve
+## Results
 
-![PPO Training Curve](plots/ppo_training_curve.png)
+Both agents were trained for **1,000,000 timesteps**.
 
-### Custom SAC Training Curve
+| Algorithm | Mean Reward | Best Reward | Worst Reward |
+|---|---:|---:|---:|
+| PPO | 195.38 | 266.63 | 25.41 |
+| Custom SAC | 233.57 | 282.58 | 16.45 |
 
-![Custom SAC Training Curve](plots/sac_training_curve.png)
+## PPO Training Curve
 
-### PPO vs Custom SAC Comparison
+<p align="center">
+  <img src="plots/ppo_training_curve.png" width="650">
+</p>
 
-![PPO vs Custom SAC Comparison](plots/sac_vs_ppo_comparison.png)
+## Custom SAC Training Curve
 
-### Evaluation Summary
+<p align="center">
+  <img src="plots/sac_training_curve.png" width="650">
+</p>
 
-![Evaluation Summary](plots/evaluation_summary_table.png)
+## PPO vs Custom SAC Comparison
 
+<p align="center">
+  <img src="plots/sac_vs_ppo_comparison.png" width="650">
+</p>
 
-Notes
-- Custom SAC implementation is inside sac/.
-- PPO baseline uses Stable-Baselines3.
-- Video recording uses rgb_array rendering because live rendering caused instability on the local Linux system.
-- The comparison is based on training reward curves, final evaluation reward, and recorded landing behavior.
+## Evaluation Summary
 
-
-License
-
-MIT License
+<p align="center">
+  <img src="plots/evaluation_summary_table.png" width="750">
+</p>
