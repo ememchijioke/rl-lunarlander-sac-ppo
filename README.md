@@ -10,8 +10,6 @@ This repository contains a project that applies deep reinforcement learning to c
 - **Algorithms:** Custom SAC and PPO baseline
 - **Hardware:** trained locally with CUDA support, CPU fallback was available
 
-## Custom SAC Landing Demo
-
 <p align="center">
   <img src="doc/sac_lunarlander_demo.gif" width="550">
 </p>
