@@ -1,8 +1,6 @@
 #### Academic Coursework
 # RL LunarLander: Custom SAC vs PPO
 
-# RL LunarLander SAC PPO
-
 This repository is a project that uses deep reinforcement learning for continuous lunar landing control. With a custom Soft Actor-Critic (SAC) agent and a PPO baseline, the lunar lander learns to stabilize its descent and land safely in the LunarLanderContinuous environment.
 
 - **Environment:** LunarLanderContinuous-v3
