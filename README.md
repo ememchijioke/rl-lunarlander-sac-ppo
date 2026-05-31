@@ -2,12 +2,18 @@
 
 # RL LunarLander SAC PPO
 
-This repository is a project that uses deep reinforcement learning for continuous lunar landing control. With a custom Soft Actor-Critic (SAC) agent and a PPO baseline, the lunar lander learns to stabilize its descent and land safely in the LunarLanderContinuous environment.
+This repository contains a project that applies deep reinforcement learning to control a lunar lander. It uses a custom Soft Actor-Critic (SAC) agent and a PPO baseline to help the lander stabilize its descent and land safely in the LunarLanderContinuous environment.
+
 
 - **Environment:** LunarLanderContinuous-v3
 - **Objective:** learn continuous engine control for safe landing
 - **Algorithms:** Custom SAC and PPO baseline
 - **Hardware:** trained locally with CUDA support, CPU fallback was available
+
+## Custom SAC Landing Demo
+<p align="center">
+  <img src="doc/sac_lunarlander_demo.gif" width="550">
+</p>
 
 ## Setup
 
@@ -34,19 +40,13 @@ python record_video.py --algo ppo --episodes 5 --video-folder videos/ppo_1m
 # Record custom SAC
 python record_video.py --algo sac --episodes 5 --video-folder videos/sac_1m
 ```
-Videos are written under `videos/`.
+The videos are written under `videos/`.
 
 ## Plot training curves
 ```bash
 python plot_results.py
 python compare_results.py
 ```
-
-Generated artefacts are written under:
-* `plots/ppo_training_curve.png`
-* `plots/sac_training_curve.png`
-* `plots/sac_vs_ppo_comparison.png`
-* `plots/evaluation_summary_table.png`
 
 ## Results
 ## Results
