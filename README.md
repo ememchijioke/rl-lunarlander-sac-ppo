@@ -49,9 +49,38 @@ Generated artefacts are written under:
 * `plots/evaluation_summary_table.png`
 
 ## Results
-### Evaluation Summary
+## Results
 
-![Evaluation Summary](plots/evaluation_summary_table.png)
+Both agents were trained for **1,000,000 timesteps**.
+
+| Algorithm | Mean Reward | Best Reward | Worst Reward |
+|---|---:|---:|---:|
+| PPO | 195.38 | 266.63 | 25.41 |
+| Custom SAC | 233.57 | 282.58 | 16.45 |
+
+## PPO Training Curve
+
+<p align="center">
+  <img src="plots/ppo_training_curve.png" width="650">
+</p>
+
+## Custom SAC Training Curve
+
+<p align="center">
+  <img src="plots/sac_training_curve.png" width="650">
+</p>
+
+## PPO vs Custom SAC Comparison
+
+<p align="center">
+  <img src="plots/sac_vs_ppo_comparison.png" width="650">
+</p>
+
+## Evaluation Summary
+
+<p align="center">
+  <img src="plots/evaluation_summary_table.png" width="750">
+</p>
 
 ## Notes
 
@@ -63,5 +92,3 @@ Generated artefacts are written under:
 ## License
 
 MIT License
-
-````
