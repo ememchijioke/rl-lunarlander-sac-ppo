@@ -1,4 +1,4 @@
-
+# ppo/networks.py
 
 import torch
 import torch.nn as nn
@@ -10,12 +10,20 @@ LOG_STD_MAX = 2
 EPSILON = 1e-6
 
 
+def atanh(x):
+    x = torch.clamp(x, -1.0 + EPSILON, 1.0 - EPSILON)
+    return 0.5 * torch.log((1 + x) / (1 - x))
+
+
 class ActorCritic(nn.Module):
     """
     Actor-Critic network for Custom Deep PPO.
 
-    The actor outputs a Gaussian policy for continuous actions.
-    The critic outputs the value estimate V(s).
+    Actor:
+        outputs a Gaussian policy for continuous actions.
+
+    Critic:
+        outputs V(s), the value estimate of the current state.
     """
 
     def __init__(self, obs_dim, action_dim, hidden_dim, action_limit):
@@ -23,7 +31,6 @@ class ActorCritic(nn.Module):
 
         self.action_limit = action_limit
 
-        # Shared feature extractor
         self.shared_net = nn.Sequential(
             nn.Linear(obs_dim, hidden_dim),
             nn.Tanh(),
@@ -31,13 +38,8 @@ class ActorCritic(nn.Module):
             nn.Tanh(),
         )
 
-        # Actor head: outputs mean action
         self.mean_layer = nn.Linear(hidden_dim, action_dim)
-
-        # Learnable log standard deviation for exploration
         self.log_std = nn.Parameter(torch.zeros(action_dim))
-
-        # Critic head: outputs state value V(s)
         self.value_layer = nn.Linear(hidden_dim, 1)
 
     def forward(self, obs):
@@ -53,14 +55,13 @@ class ActorCritic(nn.Module):
 
     def get_action_and_value(self, obs, action=None):
         """
-        Sample or evaluate an action.
+        During rollout:
+            action=None, so we sample a raw action, squash it with tanh,
+            and return its corrected log probability.
 
-        During rollout collection:
-            action=None, so the policy samples an action.
-
-        During PPO update:
-            action is provided, so the method recomputes log probability
-            under the current policy.
+        During update:
+            action is the already-squashed environment action, so we invert it
+            with atanh before recomputing the log probability.
         """
 
         mean, std, value = self.forward(obs)
@@ -68,23 +69,22 @@ class ActorCritic(nn.Module):
 
         if action is None:
             raw_action = distribution.rsample()
+            squashed_action = torch.tanh(raw_action)
         else:
-            raw_action = action
+            squashed_action = action / self.action_limit
+            raw_action = atanh(squashed_action)
 
-        logprob = distribution.log_prob(raw_action).sum(dim=-1, keepdim=True)
+        action_out = squashed_action * self.action_limit
+
+        logprob = distribution.log_prob(raw_action)
+        logprob -= torch.log(1 - squashed_action.pow(2) + EPSILON)
+        logprob = logprob.sum(dim=-1, keepdim=True)
+
         entropy = distribution.entropy().sum(dim=-1, keepdim=True)
 
-        # Squash action to environment bounds
-        squashed_action = torch.tanh(raw_action) * self.action_limit
-
-        return squashed_action, logprob, entropy, value
+        return action_out, logprob, entropy, value
 
     def act_deterministic(self, obs):
-        """
-        Deterministic action for evaluation.
-        Uses the policy mean instead of sampling.
-        """
-
         mean, _, _ = self.forward(obs)
         action = torch.tanh(mean) * self.action_limit
         return action
