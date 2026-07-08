@@ -1,5 +1,3 @@
-# evaluate.py
-
 import argparse
 import os
 
@@ -14,14 +12,23 @@ from config import (
     EVAL_EPISODES,
     PPO_MODEL_DIR,
     SAC_MODEL_DIR,
+    CUSTOM_PPO_MODEL_DIR,
     HIDDEN_DIM,
     ACTOR_LR,
     CRITIC_LR,
     ALPHA_LR,
     GAMMA,
     TAU,
+    CUSTOM_PPO_LEARNING_RATE,
+    CUSTOM_PPO_GAMMA,
+    CUSTOM_PPO_GAE_LAMBDA,
+    CUSTOM_PPO_CLIP_RANGE,
+    CUSTOM_PPO_VALUE_COEF,
+    CUSTOM_PPO_ENTROPY_COEF,
+    CUSTOM_PPO_MAX_GRAD_NORM,
 )
 from sac.sac_agent import SACAgent
+from ppo.ppo_agent import PPOAgent
 
 
 def make_eval_env(seed):
@@ -58,7 +65,7 @@ def evaluate_ppo(model_path, episodes):
         print(f"Episode {ep + 1}: reward={total_reward:.2f}, steps={steps}")
 
     env.close()
-    print_summary("PPO", model_path, rewards, lengths)
+    print_summary("Stable-Baselines3 PPO", model_path, rewards, lengths)
 
 
 def evaluate_sac(model_dir, episodes):
@@ -110,6 +117,57 @@ def evaluate_sac(model_dir, episodes):
     print_summary("Custom SAC", model_dir, rewards, lengths)
 
 
+def evaluate_custom_ppo(model_dir, episodes):
+    env = make_eval_env(SEED)
+
+    obs_dim = env.observation_space.shape[0]
+    action_dim = env.action_space.shape[0]
+    action_limit = float(env.action_space.high[0])
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    agent = PPOAgent(
+        obs_dim=obs_dim,
+        action_dim=action_dim,
+        action_limit=action_limit,
+        hidden_dim=HIDDEN_DIM,
+        learning_rate=CUSTOM_PPO_LEARNING_RATE,
+        gamma=CUSTOM_PPO_GAMMA,
+        gae_lambda=CUSTOM_PPO_GAE_LAMBDA,
+        clip_range=CUSTOM_PPO_CLIP_RANGE,
+        value_coef=CUSTOM_PPO_VALUE_COEF,
+        entropy_coef=CUSTOM_PPO_ENTROPY_COEF,
+        max_grad_norm=CUSTOM_PPO_MAX_GRAD_NORM,
+        device=device,
+    )
+
+    agent.load(model_dir)
+
+    rewards = []
+    lengths = []
+
+    for ep in range(episodes):
+        obs, info = env.reset(seed=SEED + ep)
+        done = False
+        total_reward = 0.0
+        steps = 0
+
+        while not done:
+            action = agent.predict(obs, deterministic=True)
+            obs, reward, terminated, truncated, info = env.step(action)
+
+            total_reward += reward
+            steps += 1
+            done = terminated or truncated
+
+        rewards.append(total_reward)
+        lengths.append(steps)
+        print(f"Episode {ep + 1}: reward={total_reward:.2f}, steps={steps}")
+
+    env.close()
+    print_summary("Custom Deep PPO", model_dir, rewards, lengths)
+
+
 def print_summary(name, model_path, rewards, lengths):
     print("\nEvaluation Summary")
     print("------------------")
@@ -129,7 +187,7 @@ def main():
     parser.add_argument(
         "--algo",
         type=str,
-        choices=["ppo", "sac"],
+        choices=["ppo", "sac", "custom_ppo"],
         required=True,
         help="Algorithm to evaluate.",
     )
@@ -151,12 +209,19 @@ def main():
     args = parser.parse_args()
 
     if args.algo == "ppo":
-        model_path = args.model or os.path.join(PPO_MODEL_DIR, "ppo_lunarlander_final.zip")
+        model_path = args.model or os.path.join(
+            PPO_MODEL_DIR,
+            "ppo_lunarlander_final.zip",
+        )
         evaluate_ppo(model_path, args.episodes)
 
     elif args.algo == "sac":
         model_dir = args.model or os.path.join(SAC_MODEL_DIR, "final")
         evaluate_sac(model_dir, args.episodes)
+
+    elif args.algo == "custom_ppo":
+        model_dir = args.model or os.path.join(CUSTOM_PPO_MODEL_DIR, "final")
+        evaluate_custom_ppo(model_dir, args.episodes)
 
 
 if __name__ == "__main__":
