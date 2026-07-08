@@ -1,4 +1,4 @@
-# record_video.py
+
 
 import argparse
 import os
@@ -13,6 +13,7 @@ from config import (
     SEED,
     PPO_MODEL_DIR,
     SAC_MODEL_DIR,
+    CUSTOM_PPO_MODEL_DIR,
     VIDEOS_DIR,
     HIDDEN_DIM,
     ACTOR_LR,
@@ -20,8 +21,16 @@ from config import (
     ALPHA_LR,
     GAMMA,
     TAU,
+    CUSTOM_PPO_LEARNING_RATE,
+    CUSTOM_PPO_GAMMA,
+    CUSTOM_PPO_GAE_LAMBDA,
+    CUSTOM_PPO_CLIP_RANGE,
+    CUSTOM_PPO_VALUE_COEF,
+    CUSTOM_PPO_ENTROPY_COEF,
+    CUSTOM_PPO_MAX_GRAD_NORM,
 )
 from sac.sac_agent import SACAgent
+from ppo.ppo_agent import PPOAgent
 
 
 def make_video_env(video_folder, name_prefix):
@@ -63,24 +72,30 @@ def load_sac_agent(env, model_dir):
     return agent
 
 
-def record_ppo(model_path, episodes, video_folder):
-    env = make_video_env(video_folder, "ppo_lunarlander")
-    model = PPO.load(model_path)
+def load_custom_ppo_agent(env, model_dir):
+    obs_dim = env.observation_space.shape[0]
+    action_dim = env.action_space.shape[0]
+    action_limit = float(env.action_space.high[0])
 
-    run_episodes(env, episodes, lambda obs: model.predict(obs, deterministic=True)[0])
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    env.close()
-    print(f"\nPPO video recording complete. Saved in: {video_folder}")
+    agent = PPOAgent(
+        obs_dim=obs_dim,
+        action_dim=action_dim,
+        action_limit=action_limit,
+        hidden_dim=HIDDEN_DIM,
+        learning_rate=CUSTOM_PPO_LEARNING_RATE,
+        gamma=CUSTOM_PPO_GAMMA,
+        gae_lambda=CUSTOM_PPO_GAE_LAMBDA,
+        clip_range=CUSTOM_PPO_CLIP_RANGE,
+        value_coef=CUSTOM_PPO_VALUE_COEF,
+        entropy_coef=CUSTOM_PPO_ENTROPY_COEF,
+        max_grad_norm=CUSTOM_PPO_MAX_GRAD_NORM,
+        device=device,
+    )
 
-
-def record_sac(model_dir, episodes, video_folder):
-    env = make_video_env(video_folder, "sac_lunarlander")
-    agent = load_sac_agent(env, model_dir)
-
-    run_episodes(env, episodes, lambda obs: agent.select_action(obs, deterministic=True))
-
-    env.close()
-    print(f"\nSAC video recording complete. Saved in: {video_folder}")
+    agent.load(model_dir)
+    return agent
 
 
 def run_episodes(env, episodes, action_fn):
@@ -102,13 +117,55 @@ def run_episodes(env, episodes, action_fn):
         print(f"Episode {ep + 1}: reward={total_reward:.2f}, steps={steps}")
 
 
+def record_ppo(model_path, episodes, video_folder):
+    env = make_video_env(video_folder, "ppo_lunarlander")
+    model = PPO.load(model_path)
+
+    run_episodes(
+        env,
+        episodes,
+        lambda obs: model.predict(obs, deterministic=True)[0],
+    )
+
+    env.close()
+    print(f"\nPPO video recording complete. Saved in: {video_folder}")
+
+
+def record_sac(model_dir, episodes, video_folder):
+    env = make_video_env(video_folder, "sac_lunarlander")
+    agent = load_sac_agent(env, model_dir)
+
+    run_episodes(
+        env,
+        episodes,
+        lambda obs: agent.select_action(obs, deterministic=True),
+    )
+
+    env.close()
+    print(f"\nSAC video recording complete. Saved in: {video_folder}")
+
+
+def record_custom_ppo(model_dir, episodes, video_folder):
+    env = make_video_env(video_folder, "custom_ppo_lunarlander")
+    agent = load_custom_ppo_agent(env, model_dir)
+
+    run_episodes(
+        env,
+        episodes,
+        lambda obs: agent.predict(obs, deterministic=True),
+    )
+
+    env.close()
+    print(f"\nCustom PPO video recording complete. Saved in: {video_folder}")
+
+
 def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
         "--algo",
         type=str,
-        choices=["ppo", "sac"],
+        choices=["ppo", "sac", "custom_ppo"],
         required=True,
         help="Algorithm to record.",
     )
@@ -117,7 +174,7 @@ def main():
         "--model",
         type=str,
         default=None,
-        help="Optional model path. PPO expects .zip, SAC expects model directory.",
+        help="Optional model path. PPO expects .zip, SAC/PPO custom expect model directory.",
     )
 
     parser.add_argument(
@@ -137,7 +194,10 @@ def main():
     args = parser.parse_args()
 
     if args.algo == "ppo":
-        model_path = args.model or os.path.join(PPO_MODEL_DIR, "ppo_lunarlander_final.zip")
+        model_path = args.model or os.path.join(
+            PPO_MODEL_DIR,
+            "ppo_lunarlander_final.zip",
+        )
         video_folder = args.video_folder or os.path.join(VIDEOS_DIR, "ppo")
         record_ppo(model_path, args.episodes, video_folder)
 
@@ -145,6 +205,11 @@ def main():
         model_dir = args.model or os.path.join(SAC_MODEL_DIR, "final")
         video_folder = args.video_folder or os.path.join(VIDEOS_DIR, "sac")
         record_sac(model_dir, args.episodes, video_folder)
+
+    elif args.algo == "custom_ppo":
+        model_dir = args.model or os.path.join(CUSTOM_PPO_MODEL_DIR, "final")
+        video_folder = args.video_folder or os.path.join(VIDEOS_DIR, "custom_ppo")
+        record_custom_ppo(model_dir, args.episodes, video_folder)
 
 
 if __name__ == "__main__":
