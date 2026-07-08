@@ -1,3 +1,3 @@
-Algorithm,Training Steps,Mean Reward,Best Reward,Worst Reward,Notes
-PPO,"1,000,000",195.38,266.63,25.41,Good baseline; inconsistent landing.
-Custom SAC,"1,000,000",233.57,282.58,16.45,9/10 strong episodes.
+Algorithm,Role,Steps,Mean,Best,Worst
+Custom Deep PPO,Main model,"1,000,000",220.07,284.26,36.26
+Custom SAC,Comparison,"1,000,000",233.57,282.58,16.45
