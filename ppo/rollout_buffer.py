@@ -1,4 +1,3 @@
-# ppo/rollout_buffer.py
 
 import numpy as np
 import torch
