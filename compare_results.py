@@ -1,29 +1,32 @@
 # compare_results.py
 
 import os
-import pandas as pd
+
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from config import PLOTS_DIR
 
+
 RESULTS = [
     {
-        "Algorithm": "PPO",
-        "Training Steps": "1,000,000",
-        "Mean Reward": 195.38,
-        "Best Reward": 266.63,
-        "Worst Reward": 25.41,
-        "Notes": "Good baseline; inconsistent landing.",
+        "Algorithm": "Custom Deep PPO",
+        "Role": "Main model",
+        "Steps": "1,000,000",
+        "Mean": 220.07,
+        "Best": 284.26,
+        "Worst": 36.26,
     },
     {
         "Algorithm": "Custom SAC",
-        "Training Steps": "1,000,000",
-        "Mean Reward": 233.57,
-        "Best Reward": 282.58,
-        "Worst Reward": 16.45,
-        "Notes": "9/10 strong episodes.",
+        "Role": "Comparison",
+        "Steps": "1,000,000",
+        "Mean": 233.57,
+        "Best": 282.58,
+        "Worst": 16.45,
     },
 ]
+
 
 def main():
     os.makedirs(PLOTS_DIR, exist_ok=True)
@@ -38,7 +41,7 @@ def main():
     print(df.to_string(index=False))
     print(f"\nSaved CSV: {csv_path}")
 
-    fig, ax = plt.subplots(figsize=(14, 3.5))
+    fig, ax = plt.subplots(figsize=(11, 2.8))
     ax.axis("off")
 
     table = ax.table(
@@ -49,8 +52,8 @@ def main():
     )
 
     table.auto_set_font_size(False)
-    table.set_fontsize(8)
-    table.scale(1, 1.6)
+    table.set_fontsize(9)
+    table.scale(1, 1.7)
 
     image_path = os.path.join(PLOTS_DIR, "evaluation_summary_table.png")
     plt.tight_layout()
