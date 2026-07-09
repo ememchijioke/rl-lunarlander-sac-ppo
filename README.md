@@ -107,7 +107,6 @@ Custom Deep PPO successfully learned the landing task and is the main coursework
 </p>
 
 ## Notes
-
 - The main model is the custom Deep PPO implementation.
 - PPO includes rollout collection, policy sampling, GAE advantage calculation, clipped PPO loss, value loss, entropy bonus, and gradient clipping.
 - SAC is included as an additional comparison model.

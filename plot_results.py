@@ -15,9 +15,12 @@ SAC_LOG = "logs/custom_sac/training_log.csv"
 def plot_custom_ppo():
     df = pd.read_csv(CUSTOM_PPO_LOG)
 
+    df["avg_reward_100"] = df["episode_reward"].rolling(window=100, min_periods=1).mean()
+
     plt.figure()
-    plt.plot(df["episode"], df["episode_reward"], label="Episode reward")
+    plt.plot(df["episode"], df["episode_reward"], label="Episode reward", alpha=0.35)
     plt.plot(df["episode"], df["avg_reward_10"], label="10-episode average")
+    plt.plot(df["episode"], df["avg_reward_100"], label="100-episode average")
     plt.xlabel("Episode")
     plt.ylabel("Episode Reward")
     plt.title("Custom Deep PPO Training Reward Curve")
